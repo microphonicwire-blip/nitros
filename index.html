@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nitr0s</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #030304;
+  --s1:       #08080c;
+  --s2:       #0c0c12;
+  --s3:       #111118;
+  --border:   #1a1a26;
+  --border2:  #222232;
+  --p:        #7c3aed;
+  --p2:       #9d5cff;
+  --p3:       #c084fc;
+  --p4:       #e0b4ff;
+  --cyan:     #06b6d4;
+  --red:      #f43f5e;
+  --green:    #10b981;
+  --amber:    #f59e0b;
+  --text:     #ddddf0;
+  --text2:    #8888aa;
+  --text3:    #44445a;
+  --glow:     rgba(124,58,237,0.4);
+  --glowc:    rgba(6,182,212,0.3);
+  --mono:     'IBM Plex Mono', monospace;
+  --display:  'Bebas Neue', sans-serif;
+  --body:     'DM Sans', sans-serif;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  width:100%; min-height:100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  overflow-x: hidden;
+  cursor: crosshair;
+}
+
+/* ── CHROMATIC NOISE OVERLAY ── */
+.noise {
+  position:fixed; inset:0; z-index:9999;
+  pointer-events:none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.6;
+  mix-blend-mode: overlay;
+}
+
+/* ── CHROMATIC ABERRATION GLOW LAYER ── */
+.chroma {
+  position:fixed; inset:0; z-index:1;
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse 800px 600px at 10% 10%, rgba(124,58,237,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 600px 400px at 90% 80%, rgba(6,182,212,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 400px 300px at 50% 50%, rgba(157,92,255,0.03) 0%, transparent 70%);
+}
+
+/* ── SCANLINES ── */
+.scanlines {
+  position:fixed; inset:0; z-index:9998;
+  pointer-events:none;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 3px,
+    rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px
+  );
+}
+
+/* ── LAYOUT ── */
+.app {
+  position:relative; z-index:2;
+  display:grid;
+  grid-template-rows: 52px 1fr;
+  min-height:100vh;
+}
+
+/* ── HEADER ── */
+header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(3,3,4,0.95);
+  backdrop-filter: blur(20px);
+  position:sticky; top:0; z-index:100;
+  animation: slideDown 0.4s ease both;
+}
+
+.logo {
+  display:flex; align-items:center; gap:10px;
+}
+
+.logo-mark {
+  position:relative;
+  font-family: var(--display);
+  font-size:22px;
+  letter-spacing:2px;
+  color: #fff;
+}
+.logo-mark::before {
+  content: 'NITR0S';
+  position:absolute; inset:0;
+  color: var(--cyan);
+  transform: translateX(-1.5px);
+  opacity:0.5;
+  filter: blur(0.5px);
+}
+.logo-mark::after {
+  content: 'NITR0S';
+  position:absolute; inset:0;
+  color: var(--red);
+  transform: translateX(1.5px);
+  opacity:0.5;
+  filter: blur(0.5px);
+}
+
+.logo-version {
+  font-family: var(--mono);
+  font-size:9px;
+  color: var(--text3);
+  letter-spacing:1px;
+  margin-top:2px;
+}
+
+.header-center {
+  display:flex; gap:4px;
+}
+
+.nav-tab {
+  font-family: var(--mono);
+  font-size:11px;
+  letter-spacing:1px;
+  color: var(--text3);
+  padding: 6px 14px;
+  border-radius:6px;
+  cursor:pointer;
+  transition: all 0.15s;
+  text-transform:uppercase;
+  border: 1px solid transparent;
+  background:none;
+}
+.nav-tab:hover { color:var(--text2); background:var(--s2); }
+.nav-tab.active { color:var(--p3); border-color:var(--border2); background:var(--s2); }
+
+.header-right {
+  display:flex; align-items:center; gap:16px;
+}
+
+.pulse-dot {
+  width:6px; height:6px; border-radius:50%;
+  background:var(--green);
+  box-shadow: 0 0 8px var(--green);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.hclock {
+  font-family:var(--mono);
+  font-size:12px;
+  color:var(--text2);
+  letter-spacing:1px;
+}
+
+/* ── MAIN CONTENT ── */
+.content {
+  padding:20px 24px;
+  display:none;
+}
+.content.active { display:block; }
+
+/* ── DASHBOARD TAB ── */
+.dash-grid {
+  display:grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap:12px;
+}
+
+/* ── CARDS ── */
+.card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius:12px;
+  padding:16px;
+  position:relative;
+  overflow:hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  animation: fadeUp 0.5s ease both;
+}
+.card::after {
+  content:'';
+  position:absolute; inset:0;
+  background: linear-gradient(135deg, rgba(124,58,237,0.03) 0%, transparent 50%);
+  pointer-events:none;
+}
+.card:hover {
+  border-color: rgba(124,58,237,0.35);
+  box-shadow: 0 0 24px rgba(124,58,237,0.08), inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+.card-label {
+  font-family:var(--mono);
+  font-size:9px;
+  letter-spacing:2.5px;
+  text-transform:uppercase;
+  color:var(--text3);
+  margin-bottom:12px;
+}
+
+/* Stat cards */
+.c-stat { grid-column: span 3; }
+
+.stat-num {
+  font-family:var(--display);
+  font-size:48px;
+  line-height:1;
+  letter-spacing:1px;
+  background: linear-gradient(160deg, #fff 0%, var(--p3) 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  margin-bottom:2px;
+}
+.stat-desc {
+  font-family:var(--mono);
+  font-size:10px;
+  color:var(--text2);
+  margin-bottom:14px;
+}
+.bar {
+  height:3px;
+  background:var(--s3);
+  border-radius:99px;
+  overflow:hidden;
+}
+.bar-inner {
+  height:100%;
+  border-radius:99px;
+  background: linear-gradient(90deg, var(--p), var(--p2));
+  box-shadow: 0 0 6px var(--glow);
+  transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+}
+.bar-inner.c  { background: linear-gradient(90deg, var(--cyan), #38bdf8); box-shadow: 0 0 6px var(--glowc); }
+.bar-inner.w  { background: linear-gradient(90deg, var(--amber), #fbbf24); }
+.bar-inner.r  { background: linear-gradient(90deg, var(--red), #fb7185); }
+
+/* Launch */
+.c-launch { grid-column: span 8; }
+.launch-grid {
+  display:grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap:8px;
+}
+.lb {
+  background:var(--s2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px 6px;
+  cursor:pointer;
+  display:flex; flex-direction:column;
+  align-items:center; gap:6px;
+  text-decoration:none;
+  color:var(--text);
+  transition:all 0.15s;
+  position:relative;
+  overflow:hidden;
+}
+.lb::before {
+  content:'';
+  position:absolute; inset:0;
+  background: linear-gradient(135deg, var(--p), var(--cyan));
+  opacity:0;
+  transition: opacity 0.2s;
+}
+.lb:hover::before { opacity:0.08; }
+.lb:hover { border-color:rgba(124,58,237,0.5); transform:translateY(-2px); box-shadow:0 8px 20px rgba(124,58,237,0.15); }
+.lb:active { transform:scale(0.95); }
+.lb-icon { font-size:20px; position:relative; z-index:1; }
+.lb-name { font-size:10px; color:var(--text2); font-family:var(--mono); position:relative; z-index:1; text-align:center; }
+
+/* Macros */
+.c-macro { grid-column: span 4; }
+.macro-list { display:flex; flex-direction:column; gap:6px; }
+.mb {
+  background:var(--s2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:9px 12px;
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:space-between;
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--text2);
+  transition:all 0.15s;
+}
+.mb:hover { border-color:var(--p); color:var(--text); background:rgba(124,58,237,0.08); }
+.mb:active { transform:scale(0.98); }
+.mk {
+  font-size:9px;
+  background:rgba(124,58,237,0.15);
+  border:1px solid rgba(124,58,237,0.3);
+  color:var(--p3);
+  padding:2px 6px;
+  border-radius:4px;
+  letter-spacing:1px;
+}
+
+/* ── PLUGINS TAB ── */
+.plugins-layout {
+  display:grid;
+  grid-template-columns: 280px 1fr;
+  gap:16px;
+  height: calc(100vh - 92px);
+}
+
+.plugin-sidebar {
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-radius:12px;
+  display:flex; flex-direction:column;
+  overflow:hidden;
+}
+
+.sidebar-header {
+  padding:14px 16px;
+  border-bottom:1px solid var(--border);
+  font-family:var(--mono);
+  font-size:9px;
+  letter-spacing:2px;
+  color:var(--text3);
+  text-transform:uppercase;
+  display:flex; align-items:center; justify-content:space-between;
+}
+
+.fetch-btn {
+  background: linear-gradient(135deg, var(--p), var(--p2));
+  border:none;
+  border-radius:5px;
+  padding:4px 10px;
+  font-family:var(--mono);
+  font-size:9px;
+  letter-spacing:1px;
+  color:#fff;
+  cursor:pointer;
+  transition:all 0.15s;
+  text-transform:uppercase;
+}
+.fetch-btn:hover { box-shadow:0 0 12px var(--glow); transform:scale(1.03); }
+.fetch-btn:active { transform:scale(0.97); }
+.fetch-btn:disabled { opacity:0.4; cursor:not-allowed; }
+
+.plugin-list {
+  flex:1;
+  overflow-y:auto;
+  padding:8px;
+}
+.plugin-list::-webkit-scrollbar { width:3px; }
+.plugin-list::-webkit-scrollbar-thumb { background:var(--border2); border-radius:99px; }
+
+.plugin-item {
+  padding:10px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  margin-bottom:4px;
+  transition:all 0.15s;
+  border:1px solid transparent;
+}
+.plugin-item:hover { background:var(--s2); border-color:var(--border); }
+.plugin-item.active { background:rgba(124,58,237,0.1); border-color:rgba(124,58,237,0.35); }
+.plugin-item.running { border-color:rgba(16,185,129,0.35); }
+
+.pi-name {
+  font-family:var(--mono);
+  font-size:12px;
+  color:var(--text);
+  margin-bottom:2px;
+}
+.pi-desc {
+  font-size:11px;
+  color:var(--text3);
+  margin-bottom:6px;
+}
+.pi-tags { display:flex; gap:4px; flex-wrap:wrap; }
+.pi-tag {
+  font-family:var(--mono);
+  font-size:9px;
+  padding:1px 6px;
+  border-radius:3px;
+  border:1px solid var(--border2);
+  color:var(--text3);
+}
+.pi-tag.widget  { border-color:rgba(124,58,237,0.4); color:var(--p3); }
+.pi-tag.action  { border-color:rgba(6,182,212,0.4); color:var(--cyan); }
+.pi-tag.system  { border-color:rgba(245,158,11,0.4); color:var(--amber); }
+.pi-tag.running { border-color:rgba(16,185,129,0.4); color:var(--green); }
+
+/* Plugin runner area */
+.plugin-runner {
+  display:flex; flex-direction:column; gap:12px;
+}
+
+.plugin-header-card {
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:16px 20px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+
+.ph-info .ph-name {
+  font-family:var(--display);
+  font-size:26px;
+  letter-spacing:1px;
+  background: linear-gradient(90deg, #fff, var(--p3));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.ph-info .ph-desc { font-size:12px; color:var(--text2); margin-top:2px; }
+
+.ph-actions { display:flex; gap:8px; }
+
+.run-btn {
+  background: linear-gradient(135deg, var(--p), var(--p2));
+  border:none; border-radius:8px;
+  padding:10px 20px;
+  font-family:var(--mono);
+  font-size:11px; letter-spacing:1px;
+  color:#fff; cursor:pointer;
+  transition:all 0.2s;
+  text-transform:uppercase;
+}
+.run-btn:hover { box-shadow:0 0 20px var(--glow); transform:translateY(-1px); }
+.run-btn:active { transform:scale(0.97); }
+
+.stop-btn {
+  background:rgba(244,63,94,0.15);
+  border:1px solid rgba(244,63,94,0.35);
+  border-radius:8px;
+  padding:10px 20px;
+  font-family:var(--mono);
+  font-size:11px; letter-spacing:1px;
+  color:var(--red); cursor:pointer;
+  transition:all 0.15s;
+  text-transform:uppercase;
+}
+.stop-btn:hover { background:rgba(244,63,94,0.25); }
+
+/* Plugin output area */
+.plugin-output {
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-radius:12px;
+  flex:1;
+  overflow:hidden;
+  display:flex; flex-direction:column;
+}
+
+.po-bar {
+  padding:10px 16px;
+  border-bottom:1px solid var(--border);
+  font-family:var(--mono);
+  font-size:9px;
+  letter-spacing:2px;
+  color:var(--text3);
+  text-transform:uppercase;
+  display:flex; align-items:center; gap:8px;
+}
+
+.po-dot { width:5px; height:5px; border-radius:50%; background:var(--green); }
+.po-dot.idle { background:var(--text3); }
+
+.po-frame {
+  flex:1;
+  border:none;
+  background:transparent;
+  width:100%;
+  min-height:300px;
+}
+
+/* ── TERMINAL TAB ── */
+.terminal {
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-radius:12px;
+  height: calc(100vh - 92px);
+  display:flex; flex-direction:column;
+  overflow:hidden;
+  font-family:var(--mono);
+}
+
+.term-bar {
+  padding:12px 16px;
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:8px;
+  font-size:11px; color:var(--text3);
+}
+.term-dot { width:10px; height:10px; border-radius:50%; }
+.term-output {
+  flex:1; overflow-y:auto;
+  padding:16px;
+  font-size:12px;
+  line-height:1.7;
+}
+.term-output::-webkit-scrollbar { width:3px; }
+.term-output::-webkit-scrollbar-thumb { background:var(--border2); }
+.term-line { margin-bottom:2px; }
+.term-line.prompt { color:var(--p3); }
+.term-line.info   { color:var(--text2); }
+.term-line.ok     { color:var(--green); }
+.term-line.err    { color:var(--red); }
+.term-line.warn   { color:var(--amber); }
+.term-line.data   { color:var(--cyan); }
+
+.term-input-row {
+  display:flex; align-items:center; gap:10px;
+  padding:12px 16px;
+  border-top:1px solid var(--border);
+}
+.term-prompt { color:var(--p3); font-size:12px; }
+.term-input {
+  flex:1; background:none; border:none; outline:none;
+  color:var(--text); font-family:var(--mono); font-size:12px;
+  caret-color:var(--p2);
+}
+
+/* ── LOG (bottom strip on dashboard) ── */
+.c-log { grid-column: span 12; }
+.log-scroll {
+  display:flex; flex-direction:column; gap:4px;
+  max-height:90px; overflow-y:auto;
+}
+.log-scroll::-webkit-scrollbar { width:3px; }
+.log-scroll::-webkit-scrollbar-thumb { background:var(--border2); }
+.log-row {
+  display:flex; gap:12px; align-items:center;
+  font-family:var(--mono); font-size:10px;
+  padding:3px 0;
+  border-bottom:1px solid rgba(255,255,255,0.02);
+  animation:fadeIn 0.3s ease both;
+}
+.log-t { color:var(--p3); min-width:44px; }
+.log-m { color:var(--text2); }
+
+/* ── TOAST ── */
+.toast {
+  position:fixed; bottom:20px; right:20px;
+  background:var(--s2);
+  border:1px solid var(--p);
+  border-radius:10px;
+  padding:10px 16px;
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--text);
+  box-shadow:0 8px 32px rgba(124,58,237,0.25);
+  z-index:10000;
+  display:flex; align-items:center; gap:8px;
+  transform:translateY(70px); opacity:0;
+  transition:all 0.25s cubic-bezier(0.4,0,0.2,1);
+  pointer-events:none;
+  max-width:320px;
+}
+.toast.show { transform:translateY(0); opacity:1; }
+
+/* ── ANIMATIONS ── */
+@keyframes slideDown { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeUp    { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeIn    { from{opacity:0} to{opacity:1} }
+@keyframes pulse     { 0%,100%{opacity:1;box-shadow:0 0 8px var(--green)} 50%{opacity:0.4;box-shadow:none} }
+@keyframes spin      { to{transform:rotate(360deg)} }
+
+.c-stat:nth-child(1) { animation-delay:0.05s }
+.c-stat:nth-child(2) { animation-delay:0.10s }
+.c-stat:nth-child(3) { animation-delay:0.15s }
+.c-launch            { animation-delay:0.20s }
+.c-macro             { animation-delay:0.25s }
+.c-log               { animation-delay:0.30s }
+
+/* Empty state */
+.empty-state {
+  display:flex; flex-direction:column; align-items:center;
+  justify-content:center; height:100%;
+  gap:12px; color:var(--text3);
+  font-family:var(--mono); font-size:12px; text-align:center;
+  padding:40px;
+}
+.empty-icon { font-size:40px; opacity:0.3; }
+</style>
+</head>
+<body>
+
+<div class="noise"></div>
+<div class="scanlines"></div>
+<div class="chroma"></div>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <div class="logo-mark">NITR0S</div>
+      <div class="logo-version">v2.0 // PICO EDITION</div>
+    </div>
+    <div class="header-center">
+      <button class="nav-tab active" onclick="switchTab('dash', this)">Dashboard</button>
+      <button class="nav-tab" onclick="switchTab('plugins', this)">Plugins</button>
+      <button class="nav-tab" onclick="switchTab('terminal', this)">Terminal</button>
+    </div>
+    <div class="header-right">
+      <div class="pulse-dot"></div>
+      <div class="hclock" id="clock">--:--:--</div>
+    </div>
+  </header>
+
+  <!-- DASHBOARD -->
+  <div class="content active" id="tab-dash">
+    <div class="dash-grid">
+
+      <!-- CPU -->
+      <div class="card c-stat">
+        <div class="card-label">CPU Load</div>
+        <div class="stat-num" id="cpu-v">--%</div>
+        <div class="stat-desc" id="cpu-d">initialising...</div>
+        <div class="bar"><div class="bar-inner" id="cpu-b" style="width:0%"></div></div>
+      </div>
+
+      <!-- RAM -->
+      <div class="card c-stat">
+        <div class="card-label">Memory</div>
+        <div class="stat-num" id="ram-v">--%</div>
+        <div class="stat-desc" id="ram-d">initialising...</div>
+        <div class="bar"><div class="bar-inner c" id="ram-b" style="width:0%"></div></div>
+      </div>
+
+      <!-- Disk -->
+      <div class="card c-stat">
+        <div class="card-label">Storage</div>
+        <div class="stat-num" id="dsk-v">--%</div>
+        <div class="stat-desc" id="dsk-d">initialising...</div>
+        <div class="bar"><div class="bar-inner" id="dsk-b" style="width:0%"></div></div>
+      </div>
+
+      <!-- Launch -->
+      <div class="card c-launch">
+        <div class="card-label">Quick Launch</div>
+        <div class="launch-grid">
+          <a class="lb" href="https://youtube.com" target="_blank" onclick="addLog('▶ YouTube opened')">
+            <span class="lb-icon">▶️</span><span class="lb-name">YouTube</span>
+          </a>
+          <a class="lb" href="https://discord.com/app" target="_blank" onclick="addLog('💬 Discord opened')">
+            <span class="lb-icon">💬</span><span class="lb-name">Discord</span>
+          </a>
+          <a class="lb" href="https://github.com" target="_blank" onclick="addLog('🐙 GitHub opened')">
+            <span class="lb-icon">🐙</span><span class="lb-name">GitHub</span>
+          </a>
+          <a class="lb" href="https://open.spotify.com" target="_blank" onclick="addLog('🎵 Spotify opened')">
+            <span class="lb-icon">🎵</span><span class="lb-name">Spotify</span>
+          </a>
+          <a class="lb" href="https://twitch.tv" target="_blank" onclick="addLog('🎮 Twitch opened')">
+            <span class="lb-icon">🎮</span><span class="lb-name">Twitch</span>
+          </a>
+          <a class="lb" href="https://reddit.com" target="_blank" onclick="addLog('🔴 Reddit opened')">
+            <span class="lb-icon">🔴</span><span class="lb-name">Reddit</span>
+          </a>
+          <a class="lb" href="https://x.com" target="_blank" onclick="addLog('🐦 X opened')">
+            <span class="lb-icon">🐦</span><span class="lb-name">X</span>
+          </a>
+          <a class="lb" href="https://claude.ai" target="_blank" onclick="addLog('🤖 Claude opened')">
+            <span class="lb-icon">🤖</span><span class="lb-name">Claude</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Macros -->
+      <div class="card c-macro">
+        <div class="card-label">Macros</div>
+        <div class="macro-list">
+          <button class="mb" onclick="macro('gg ez', 'GG EZ copied')">
+            <span>GG EZ</span><span class="mk">COPY</span>
+          </button>
+          <button class="mb" onclick="macro('brb 5 mins', 'BRB copied')">
+            <span>BRB 5 mins</span><span class="mk">COPY</span>
+          </button>
+          <button class="mb" onclick="macro('on my way', 'OMW copied')">
+            <span>On my way</span><span class="mk">COPY</span>
+          </button>
+          <button class="mb" onclick="macro(window.location.href, 'Nitr0s URL copied')">
+            <span>Copy Nitr0s URL</span><span class="mk">COPY</span>
+          </button>
+          <button class="mb" onclick="switchTab('plugins', document.querySelectorAll('.nav-tab')[1])">
+            <span>Open Plugins</span><span class="mk">NAV</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Log -->
+      <div class="card c-log">
+        <div class="card-label">Activity Log</div>
+        <div class="log-scroll" id="log"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PLUGINS -->
+  <div class="content" id="tab-plugins">
+    <div class="plugins-layout">
+
+      <!-- Sidebar -->
+      <div class="plugin-sidebar">
+        <div class="sidebar-header">
+          <span>Plugins</span>
+          <button class="fetch-btn" id="fetch-btn" onclick="fetchPlugins()">↓ Fetch</button>
+        </div>
+        <div class="plugin-list" id="plugin-list">
+          <div class="empty-state">
+            <div class="empty-icon">⬡</div>
+            <div>No plugins loaded.<br>Click FETCH to load from GitHub.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Runner -->
+      <div class="plugin-runner" id="plugin-runner">
+        <div class="empty-state" style="height:100%;background:var(--s1);border:1px solid var(--border);border-radius:12px;">
+          <div class="empty-icon">◈</div>
+          <div>Select a plugin from the sidebar<br>to view and run it.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TERMINAL -->
+  <div class="content" id="tab-terminal">
+    <div class="terminal">
+      <div class="term-bar">
+        <div class="term-dot" style="background:#f43f5e"></div>
+        <div class="term-dot" style="background:#f59e0b"></div>
+        <div class="term-dot" style="background:#10b981"></div>
+        <span style="margin-left:8px">nitr0s // terminal</span>
+      </div>
+      <div class="term-output" id="term-out"></div>
+      <div class="term-input-row">
+        <span class="term-prompt">nitr0s &gt;</span>
+        <input class="term-input" id="term-in" placeholder="type a command..." autocomplete="off" spellcheck="false">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <span id="toast-icon">✓</span>
+  <span id="toast-msg"></span>
+</div>
+
+<script>
+// ── GITHUB CONFIG ──
+// Set your GitHub username and repo name here!
+const GITHUB_USER = 'YOUR_USERNAME';
+const GITHUB_REPO = 'nitr0s';
+const PLUGINS_PATH = 'plugins'; // folder in your repo
+const RAW_BASE = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${PLUGINS_PATH}`;
+const API_BASE = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${PLUGINS_PATH}`;
+
+// ── CLOCK ──
+setInterval(() => {
+  document.getElementById('clock').textContent =
+    new Date().toLocaleTimeString('en-GB', { hour12: false });
+}, 1000);
+
+// ── SIMULATED STATS ──
+let cpu = 30, ram = 55, dsk = 62;
+function updateStats() {
+  cpu = Math.max(5, Math.min(95, cpu + (Math.random() * 14 - 7)));
+  ram = Math.max(20, Math.min(95, ram + (Math.random() * 5 - 2.5)));
+
+  const cv = Math.round(cpu), rv = Math.round(ram), dv = dsk;
+
+  document.getElementById('cpu-v').textContent = cv + '%';
+  document.getElementById('cpu-d').textContent = cv < 30 ? 'idle' : cv < 60 ? 'moderate' : cv < 80 ? 'high load' : '⚠ critical';
+  const cb = document.getElementById('cpu-b');
+  cb.style.width = cv + '%';
+  cb.className = 'bar-inner' + (cv > 80 ? ' r' : cv > 60 ? ' w' : '');
+
+  document.getElementById('ram-v').textContent = rv + '%';
+  document.getElementById('ram-d').textContent = ((rv/100)*16).toFixed(1) + ' GB / 16 GB used';
+  document.getElementById('ram-b').style.width = rv + '%';
+
+  document.getElementById('dsk-v').textContent = dv + '%';
+  document.getElementById('dsk-d').textContent = Math.round((dv/100)*512) + ' GB / 512 GB used';
+  const db = document.getElementById('dsk-b');
+  db.style.width = dv + '%';
+  db.className = 'bar-inner' + (dv > 85 ? ' r' : dv > 70 ? ' w' : '');
+}
+updateStats();
+setInterval(updateStats, 2000);
+
+// ── ACTIVITY LOG ──
+function addLog(msg) {
+  const log = document.getElementById('log');
+  const t = new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit', hour12:false });
+  const row = document.createElement('div');
+  row.className = 'log-row';
+  row.innerHTML = `<span class="log-t">${t}</span><span class="log-m">${msg}</span>`;
+  log.prepend(row);
+  while (log.children.length > 30) log.removeChild(log.lastChild);
+}
+addLog('⚡ Nitr0s v2 booted — Pico connected');
+
+// ── MACROS ──
+function macro(text, label) {
+  navigator.clipboard.writeText(text).then(() => {
+    toast('📋 ' + label);
+    addLog('Macro: ' + label);
+  });
+}
+
+// ── TOAST ──
+let toastT;
+function toast(msg, icon='✓') {
+  document.getElementById('toast-msg').textContent = msg;
+  document.getElementById('toast-icon').textContent = icon;
+  const el = document.getElementById('toast');
+  el.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+// ── TAB SWITCH ──
+function switchTab(id, btn) {
+  document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── PLUGIN SYSTEM ──
+// Plugins are .js files in your GitHub repo under /plugins/
+// Each plugin file must export a manifest at the top as a JS comment block:
+// /* nitr0s-plugin
+//    name: Weather Widget
+//    description: Shows live weather
+//    type: widget   (widget | action | system)
+// */
+// Then the rest of the file is a function: function run(container) { ... }
+
+let plugins = [];
+let activePlugin = null;
+let runningPlugin = null;
+
+async function fetchPlugins() {
+  const btn = document.getElementById('fetch-btn');
+  btn.disabled = true;
+  btn.textContent = '...';
+  termPrint('Fetching plugin list from GitHub...', 'info');
+  addLog('Fetching plugins from GitHub...');
+
+  try {
+    const res = await fetch(API_BASE);
+    if (!res.ok) throw new Error(`GitHub API error: ${res.status} — make sure your repo is public and GITHUB_USER is set correctly`);
+    const files = await res.json();
+    const jsFiles = files.filter(f => f.name.endsWith('.js'));
+
+    if (!jsFiles.length) {
+      termPrint('No plugin .js files found in /plugins/ folder.', 'warn');
+      termPrint('Create some! See the README in your repo for the plugin format.', 'info');
+      toast('⚠ No plugins found', '⚠');
+      btn.disabled = false;
+      btn.textContent = '↓ Fetch';
+      return;
+    }
+
+    plugins = [];
+    for (const file of jsFiles) {
+      const raw = await fetch(`${RAW_BASE}/${file.name}`);
+      const code = await raw.text();
+      const meta = parsePluginMeta(code);
+      plugins.push({ ...meta, code, filename: file.name });
+      termPrint(`  ✓ loaded: ${meta.name}`, 'ok');
+    }
+
+    renderPluginList();
+    termPrint(`${plugins.length} plugin(s) loaded.`, 'ok');
+    toast(`✓ ${plugins.length} plugin(s) loaded`);
+    addLog(`Loaded ${plugins.length} plugins from GitHub`);
+  } catch (e) {
+    termPrint('ERROR: ' + e.message, 'err');
+    toast('✗ ' + e.message, '✗');
+  }
+
+  btn.disabled = false;
+  btn.textContent = '↓ Fetch';
+}
+
+function parsePluginMeta(code) {
+  const match = code.match(/\/\*\s*nitr0s-plugin([\s\S]*?)\*\//);
+  if (!match) return { name: 'Unknown Plugin', description: 'No manifest found', type: 'widget' };
+  const block = match[1];
+  const get = (key) => {
+    const m = block.match(new RegExp(key + ':\\s*(.+)'));
+    return m ? m[1].trim() : '';
+  };
+  return {
+    name: get('name') || 'Unnamed',
+    description: get('description') || '',
+    type: get('type') || 'widget',
+  };
+}
+
+function renderPluginList() {
+  const list = document.getElementById('plugin-list');
+  list.innerHTML = '';
+  plugins.forEach((p, i) => {
+    const el = document.createElement('div');
+    el.className = 'plugin-item';
+    el.innerHTML = `
+      <div class="pi-name">${p.name}</div>
+      <div class="pi-desc">${p.description}</div>
+      <div class="pi-tags">
+        <span class="pi-tag ${p.type}">${p.type}</span>
+        ${runningPlugin === i ? '<span class="pi-tag running">running</span>' : ''}
+      </div>`;
+    el.onclick = () => selectPlugin(i);
+    list.appendChild(el);
+  });
+}
+
+function selectPlugin(i) {
+  activePlugin = i;
+  document.querySelectorAll('.plugin-item').forEach((el, j) => {
+    el.classList.toggle('active', j === i);
+  });
+  renderPluginRunner(plugins[i], i);
+}
+
+function renderPluginRunner(p, i) {
+  const runner = document.getElementById('plugin-runner');
+  runner.innerHTML = `
+    <div class="plugin-header-card">
+      <div class="ph-info">
+        <div class="ph-name">${p.name}</div>
+        <div class="ph-desc">${p.description} &nbsp;·&nbsp; <span style="color:var(--text3);font-family:var(--mono);font-size:10px">${p.filename}</span></div>
+      </div>
+      <div class="ph-actions">
+        <button class="run-btn" onclick="runPlugin(${i})">▶ Run</button>
+        <button class="stop-btn" onclick="stopPlugin()">■ Stop</button>
+      </div>
+    </div>
+    <div class="plugin-output">
+      <div class="po-bar">
+        <div class="po-dot idle" id="po-dot"></div>
+        <span id="po-status">IDLE</span>
+      </div>
+      <iframe class="po-frame" id="po-frame" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+    </div>`;
+}
+
+function runPlugin(i) {
+  const p = plugins[i];
+  runningPlugin = i;
+  renderPluginList();
+  addLog(`▶ Running plugin: ${p.name}`);
+  termPrint(`Running: ${p.name}`, 'ok');
+
+  const dot = document.getElementById('po-dot');
+  const status = document.getElementById('po-status');
+  if (dot) { dot.classList.remove('idle'); }
+  if (status) status.textContent = 'RUNNING';
+
+  const frame = document.getElementById('po-frame');
+  if (!frame) return;
+
+  // Build a sandboxed HTML page that executes the plugin code
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#030304;
+    color:#ddddf0;
+    font-family:'IBM Plex Mono', monospace;
+    padding:20px;
+    min-height:100vh;
+  }
+  /* Plugin can use these CSS vars */
+  :root {
+    --bg:#030304; --s1:#08080c; --s2:#0c0c12;
+    --border:#1a1a26; --p:#7c3aed; --p2:#9d5cff;
+    --p3:#c084fc; --cyan:#06b6d4; --red:#f43f5e;
+    --green:#10b981; --amber:#f59e0b;
+    --text:#ddddf0; --text2:#8888aa; --text3:#44445a;
+    --mono:'IBM Plex Mono',monospace;
+  }
+  .error { color:#f43f5e; padding:16px; border:1px solid rgba(244,63,94,0.3); border-radius:8px; }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<div id="nitr0s-root"></div>
+<script>
+const container = document.getElementById('nitr0s-root');
+try {
+  ${p.code}
+  if (typeof run === 'function') run(container);
+  else container.innerHTML = '<div class="error">Plugin must export a run(container) function.</div>';
+} catch(e) {
+  container.innerHTML = '<div class="error">Plugin error: ' + e.message + '</div>';
+}
+<\/script>
+</body>
+</html>`;
+
+  frame.srcdoc = html;
+  toast(`▶ ${p.name} running`);
+}
+
+function stopPlugin() {
+  runningPlugin = null;
+  renderPluginList();
+  const frame = document.getElementById('po-frame');
+  if (frame) frame.srcdoc = '';
+  const dot = document.getElementById('po-dot');
+  const status = document.getElementById('po-status');
+  if (dot) dot.classList.add('idle');
+  if (status) status.textContent = 'IDLE';
+  toast('■ Plugin stopped');
+  addLog('Plugin stopped');
+}
+
+// ── TERMINAL ──
+const termOut = document.getElementById('term-out');
+const termIn  = document.getElementById('term-in');
+
+function termPrint(text, type='info') {
+  const line = document.createElement('div');
+  line.className = 'term-line ' + type;
+  line.textContent = text;
+  termOut.appendChild(line);
+  termOut.scrollTop = termOut.scrollHeight;
+}
+
+termPrint('NITR0S v2.0 // Terminal', 'prompt');
+termPrint('Type "help" for available commands.', 'info');
+termPrint('─'.repeat(40), 'info');
+
+const commands = {
+  help: () => {
+    termPrint('Available commands:', 'data');
+    termPrint('  fetch        — fetch plugins from GitHub', 'info');
+    termPrint('  plugins      — list loaded plugins', 'info');
+    termPrint('  run <n>      — run plugin by index', 'info');
+    termPrint('  stop         — stop running plugin', 'info');
+    termPrint('  stats        — show system stats', 'info');
+    termPrint('  clear        — clear terminal', 'info');
+    termPrint('  dash         — go to dashboard', 'info');
+    termPrint('  time         — show current time', 'info');
+  },
+  fetch: () => { switchTab('plugins', document.querySelectorAll('.nav-tab')[1]); fetchPlugins(); },
+  plugins: () => {
+    if (!plugins.length) { termPrint('No plugins loaded. Run "fetch" first.', 'warn'); return; }
+    plugins.forEach((p, i) => termPrint(`  [${i}] ${p.name} (${p.type})`, 'data'));
+  },
+  stop: () => { stopPlugin(); termPrint('Plugin stopped.', 'ok'); },
+  stats: () => {
+    termPrint(`CPU: ${document.getElementById('cpu-v').textContent}  RAM: ${document.getElementById('ram-v').textContent}  Disk: ${document.getElementById('dsk-v').textContent}`, 'data');
+  },
+  clear: () => { termOut.innerHTML = ''; },
+  dash: () => { switchTab('dash', document.querySelectorAll('.nav-tab')[0]); termPrint('Switched to dashboard.', 'ok'); },
+  time: () => { termPrint(new Date().toLocaleString(), 'data'); },
+};
+
+termIn.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const raw = termIn.value.trim();
+  termIn.value = '';
+  if (!raw) return;
+
+  termPrint('> ' + raw, 'prompt');
+
+  const [cmd, ...args] = raw.split(' ');
+
+  if (cmd === 'run') {
+    const idx = parseInt(args[0]);
+    if (!plugins.length) { termPrint('No plugins loaded.', 'warn'); return; }
+    if (isNaN(idx) || idx < 0 || idx >= plugins.length) {
+      termPrint('Usage: run <index> — use "plugins" to see indices', 'err'); return;
+    }
+    switchTab('plugins', document.querySelectorAll('.nav-tab')[1]);
+    selectPlugin(idx);
+    runPlugin(idx);
+    termPrint(`Running ${plugins[idx].name}...`, 'ok');
+    return;
+  }
+
+  if (commands[cmd]) { commands[cmd](); }
+  else { termPrint(`Unknown command: ${cmd}. Type "help".`, 'err'); }
+});
+</script>
+</body>
+</html>
